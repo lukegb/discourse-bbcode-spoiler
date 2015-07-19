@@ -11,7 +11,7 @@
   opacity: 0;
   margin-bottom: 0;
 }
-.spoilerrific > input:checked ~ div {
+.spoilerrific > input:checked ~ div, .preview-wrapper > .wmd-preview .spoilerrific > div {
   max-height: 200px;
   opacity: 1;
   margin-bottom: 1em;
@@ -32,7 +32,5 @@
   color: white;
   font-weight: bold;
   cursor: pointer;
-}
-* {
-  font-family: Arial;
+  margin-bottom: 0;
 }

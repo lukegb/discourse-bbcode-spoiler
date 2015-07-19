@@ -1,0 +1,4 @@
+plugins:
+    spoiler_default_label:
+        default: "FLARD inside!"
+        client: true
