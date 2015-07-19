@@ -11,7 +11,7 @@
   opacity: 0;
   margin-bottom: 0;
 }
-.spoilerrific > input:checked ~ div, .preview-wrapper > .wmd-preview .spoilerrific > div {
+.spoilerrific > input:checked ~ div, .wmd-preview .spoilerrific > div {
   max-height: 200px;
   opacity: 1;
   margin-bottom: 1em;
@@ -19,11 +19,20 @@
 .spoilerrific > input {
   display: none;
 }
-.spoilerrific > label::before {
+.spoilerrific[data-prefix="yes"] > label::before {
   display: inline-block;
   content: "Spoiler:";
   padding-right: 0.2em;
   font-weight: normal;
+}
+.spoilerrific[data-suffix="yes"] > label::after {
+  display: inline-block;
+  padding-left: 0.2em;
+  font-weight: normal;
+  content: "(show)";
+}
+.spoilerrific[data-suffix="yes"] > input:checked ~ label::after, .wmd-preview .spoilerrific[data-suffix="yes"] > label::after {
+  content: "(hide)";
 }
 .spoilerrific > label {
   display: inline-block;
