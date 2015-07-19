@@ -1,0 +1,38 @@
+.spoilerrific {
+  margin-top: 1em;
+}
+.spoilerrific > div {
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-bottom 0.3s ease-out;
+  max-height: 0;
+  overflow: auto;
+  padding: 0;
+  padding: 0.3em 0.5em;
+  border: 1px solid gray;
+  opacity: 0;
+  margin-bottom: 0;
+}
+.spoilerrific > input:checked ~ div {
+  max-height: 200px;
+  opacity: 1;
+  margin-bottom: 1em;
+}
+.spoilerrific > input {
+  display: none;
+}
+.spoilerrific > label::before {
+  display: inline-block;
+  content: "Spoiler:";
+  padding-right: 0.2em;
+  font-weight: normal;
+}
+.spoilerrific > label {
+  display: inline-block;
+  padding: 10px;
+  background-color: gray;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+* {
+  font-family: Arial;
+}
