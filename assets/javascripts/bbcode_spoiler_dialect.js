@@ -14,13 +14,13 @@
     return uuid;
   }
 
-  function generateJsonML (label, contents) {
+  function generateJsonML (label, contents, opts) {
     var myId = 'spoilerrific-' + generateUniqueishIdentifier();
 
     var wrappingDiv = ['div'].concat(contents);
 
     return [
-      'div', { 'class': 'spoilerrific' },
+      'div', { 'class': 'spoilerrific', 'data-prefix': opts.usingDefaultLabel ? 'yes' : 'no', 'data-suffix': opts.usingDefaultLabel ? 'no' : 'yes' },
       [
         'input', { 'type': 'checkbox', 'id': myId }
       ],
@@ -50,15 +50,23 @@
     rawContents: true, // this is documented, but doesn't seem to do anything
     emitter: function(blockContents, matches) {
       var params = matches[1] ? matches[1].replace(/^=/g, '') : '',
-          label = params.replace(/(^")|("$)/g, '') || Discourse.SiteSettings.spoiler_default_label, 
+          label = params.replace(/(^")|("$)/g, ''),
+          opts = {
+            usingDefaultLabel: false,
+          },
           inner = blockContents.join("\n\n"),
           innerTree = parser.toHTMLTree(inner, "Discourse");
 
-      if (!innerTree || innerTree.length === 0 || innerTree[0] != 'html') { // uh?
-          return generateJsonML(label, inner);
+      if (!label) {
+          opts.usingDefaultLabel = true;
+          label = Discourse.SiteSettings.spoiler_default_label;
       }
 
-      return generateJsonML(label, innerTree.slice(1));
+      if (!innerTree || innerTree.length === 0 || innerTree[0] != 'html') { // uh?
+          return generateJsonML(label, inner, opts);
+      }
+
+      return generateJsonML(label, innerTree.slice(1), opts);
     }
   });
 
@@ -68,4 +76,6 @@
   Discourse.Markdown.whiteListTag('input', 'checked', 'checked');
   Discourse.Markdown.whiteListTag('input', 'id', spoilerrificRe);
   Discourse.Markdown.whiteListTag('label', 'for', spoilerrificRe);
+  Discourse.Markdown.whiteListTag('label', 'data-prefix', /^(yes|no)$/);
+  Discourse.Markdown.whiteListTag('label', 'data-suffix', /^(yes|no)$/);
 })();
