@@ -15,7 +15,9 @@ after_initialize do
   	# so we strip out everything except the "button"
     fragment.css('.spoilerrific').each do |i|
       label = i.elements.css("label").first
-      i.replace "<div style=\"display: block;padding: 10px;background-color: gray;color: white;margin-bottom: 10px;\">Spoiler: <span style=\"font-weight: bold;\">#{label.content}</span> (view post to open!)</div>"
+      new_node = i.replace "<div style=\"display: block;padding: 10px;background-color: gray;color: white;margin-bottom: 10px;\">Spoiler: <span style=\"font-weight: bold;\"></span> (view post to open!)</div>"
+      label_span = new_node.css("span").first
+      label_span.prepend_child label.children
     end
   end
 
