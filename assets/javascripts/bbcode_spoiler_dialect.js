@@ -1,4 +1,6 @@
-(function() {
+exports = (exports || module.exports) || {};
+
+exports.setup = (function() {
   var parser = window.BetterMarkdown,
       MD = parser.Markdown,
       DialectHelpers = parser.DialectHelpers;
@@ -31,7 +33,6 @@
     ];
   }
 
-
   // At the moment, Discourse's blocking mechanism seems to be broken
   // such that the below code will only accept block-level Markdown tags
   // (e.g. headers) if they appear as the very first item in the block
@@ -43,39 +44,41 @@
   //  return generateJsonML(label, contents);
   //};
   //Discourse.BBCode.register('spoiler', {noWrap: true}, emitter);
+  
+  return function(helper) {
+    helper.replaceBlock({
+      start: /\[spoiler(=[^\[\]]+)?\]([\s\S]*)/igm,
+      stop: /\[\/spoiler\]/igm,
+      rawContents: true, // this is documented, but doesn't seem to do anything
+      emitter: function(blockContents, matches) {
+        var params = matches[1] ? matches[1].replace(/^=/g, '') : '',
+            label = params.replace(/(^")|("$)/g, ''),
+            opts = {
+              usingDefaultLabel: false,
+            },
+            inner = blockContents.join("\n\n"),
+            innerTree = parser.toHTMLTree(inner, "Discourse");
 
-  Discourse.Dialect.replaceBlock({
-    start: /\[spoiler(=[^\[\]]+)?\]([\s\S]*)/igm,
-    stop: /\[\/spoiler\]/igm,
-    rawContents: true, // this is documented, but doesn't seem to do anything
-    emitter: function(blockContents, matches) {
-      var params = matches[1] ? matches[1].replace(/^=/g, '') : '',
-          label = params.replace(/(^")|("$)/g, ''),
-          opts = {
-            usingDefaultLabel: false,
-          },
-          inner = blockContents.join("\n\n"),
-          innerTree = parser.toHTMLTree(inner, "Discourse");
+        if (!label) {
+            opts.usingDefaultLabel = true;
+            label = Discourse.SiteSettings.spoiler_default_label;
+        }
 
-      if (!label) {
-          opts.usingDefaultLabel = true;
-          label = Discourse.SiteSettings.spoiler_default_label;
+        if (!innerTree || innerTree.length === 0 || innerTree[0] != 'html') { // uh?
+            return generateJsonML(label, inner, opts);
+        }
+
+        return generateJsonML(label, innerTree.slice(1), opts);
       }
+    });
 
-      if (!innerTree || innerTree.length === 0 || innerTree[0] != 'html') { // uh?
-          return generateJsonML(label, inner, opts);
-      }
-
-      return generateJsonML(label, innerTree.slice(1), opts);
-    }
-  });
-
-  var spoilerrificRe = /^spoilerrific-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-  Discourse.Markdown.whiteListTag('div', 'class', 'spoilerrific');
-  Discourse.Markdown.whiteListTag('input', 'type', 'checkbox');
-  Discourse.Markdown.whiteListTag('input', 'checked', 'checked');
-  Discourse.Markdown.whiteListTag('input', 'id', spoilerrificRe);
-  Discourse.Markdown.whiteListTag('label', 'for', spoilerrificRe);
-  Discourse.Markdown.whiteListTag('label', 'data-prefix', /^(yes|no)$/);
-  Discourse.Markdown.whiteListTag('label', 'data-suffix', /^(yes|no)$/);
+    var spoilerrificRe = /^spoilerrific-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+    helper.whiteListTag('div', 'class', 'spoilerrific');
+    helper.whiteListTag('input', 'type', 'checkbox');
+    helper.whiteListTag('input', 'checked', 'checked');
+    helper.whiteListTag('input', 'id', spoilerrificRe);
+    helper.whiteListTag('label', 'for', spoilerrificRe);
+    helper.whiteListTag('label', 'data-prefix', /^(yes|no)$/);
+    helper.whiteListTag('label', 'data-suffix', /^(yes|no)$/);
+  };
 })();
